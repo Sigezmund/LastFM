@@ -16,7 +16,8 @@ class UserViewModel : ViewModel() {
 
     private val scope = CoroutineScope(Dispatchers.Main)
     private val okHttpClient = OkHttpClient.Builder().build()
-    private val isSuccessfullyEnter = MutableLiveData<Boolean>()
+    val userLiveData = MutableLiveData<User>()
+    val isSuccessfullyEnter = MutableLiveData<Boolean>()
 
     fun onSignInClick(login: String, password: String) {
         scope.launch {
@@ -38,16 +39,18 @@ class UserViewModel : ViewModel() {
                             "&username=" + login + "&api_sig=" + hexString
                 val urlAdress = "https://ws.audioscrobbler.com/2.0/?$urlParameter"
 
-                withContext(Dispatchers.Main) {
-                    val response = okHttpClient
+                val response = withContext(Dispatchers.IO) {
+                    okHttpClient
                         .newCall(
                             Request.Builder()
                                 .url(urlAdress)
                                 .post(RequestBody.create(null, ByteArray(0)))
                                 .build()
                         ).execute()
-                    isSuccessfullyEnter.value = response.body.toString().contains("ok")
                 }
+                userLiveData.value = User(login, password)
+                isSuccessfullyEnter.value = response.body.toString().contains("ok")
+
             } catch (e: Exception) {
                 isSuccessfullyEnter.value = false
             }

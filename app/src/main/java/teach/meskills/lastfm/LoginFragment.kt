@@ -12,6 +12,9 @@ import teach.meskills.lastfm.databinding.SignInFragmentBinding
 class LoginFragment : Fragment() {
     private lateinit var binding: SignInFragmentBinding
     private val viewModel: UserViewModel by viewModels()
+    private val pref by lazy {
+        CustomPreference(requireContext())
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -19,20 +22,31 @@ class LoginFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         binding = SignInFragmentBinding.inflate(inflater, container, false)
-        binding.signIn.setOnClickListener {
-            val userName = binding.login.text.toString()
-            val password = binding.password.text.toString()
-            if (check(userName, password)) {
-                viewModel.onSignInClick(userName, password)
+        binding.login.setText(pref.login)
+        binding.password.setText(pref.password)
+        viewModel.userLiveData.observe(viewLifecycleOwner) { user ->
+            if (user != null) {
+                pref.login = user.userName
+                pref.password = user.password
+            }
+        }
+        viewModel.isSuccessfullyEnter.observe(viewLifecycleOwner) {
+            if (it) {
                 parentFragmentManager
                     .beginTransaction()
                     .replace(R.id.fragmentContainer, ResultFragment.newInstance())
-                    .addToBackStack(null)
                     .commit()
             } else {
                 Toast.makeText(requireContext(), "Wrong login or password", Toast.LENGTH_SHORT)
                     .show()
             }
+        }
+        binding.signIn.setOnClickListener {
+            val userName = binding.login.text.toString()
+            val password = binding.password.text.toString()
+
+                viewModel.onSignInClick(userName, password)
+
         }
         return binding.root
     }

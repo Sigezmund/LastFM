@@ -30,8 +30,8 @@ class LoginFragment : Fragment() {
                 pref.password = user.password
             }
         }
-        viewModel.isSuccessfullyEnter.observe(viewLifecycleOwner) {
-            if (it) {
+        viewModel.isSuccessfullyEnter.observe(viewLifecycleOwner) {value ->
+            if (value) {
                 parentFragmentManager
                     .beginTransaction()
                     .replace(R.id.fragmentContainer, ResultFragment.newInstance())
@@ -44,14 +44,9 @@ class LoginFragment : Fragment() {
         binding.signIn.setOnClickListener {
             val userName = binding.login.text.toString()
             val password = binding.password.text.toString()
-
-                viewModel.onSignInClick(userName, password)
-
+            viewModel.onSignInClick(userName, password)
         }
         return binding.root
     }
-
-    private fun check(userName: String, password: String): Boolean {
-        return userName == "Realisttt19" && password == "Zz123123!"
-    }
+ //userName == "Realisttt19" && password == "Zz123123!"
 }

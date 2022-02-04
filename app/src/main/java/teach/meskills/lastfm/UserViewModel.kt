@@ -1,7 +1,13 @@
 package teach.meskills.lastfm
 
+import android.util.Log
+import android.widget.Toast
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.google.gson.Gson
+import com.google.gson.JsonElement
+import com.google.gson.JsonObject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -9,6 +15,7 @@ import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
+import okhttp3.internal.format
 import java.lang.Exception
 import java.security.MessageDigest
 
@@ -18,6 +25,7 @@ class UserViewModel : ViewModel() {
     private val okHttpClient = OkHttpClient.Builder().build()
     val userLiveData = MutableLiveData<User>()
     val isSuccessfullyEnter = MutableLiveData<Boolean>()
+    private val gson = Gson()
 
     fun onSignInClick(login: String, password: String) {
         scope.launch {
@@ -36,7 +44,7 @@ class UserViewModel : ViewModel() {
                 }
                 val urlParameter =
                     "method=auth.getMobileSession&api_key=" + APIKEY + "&password=" + password +
-                            "&username=" + login + "&api_sig=" + hexString
+                            "&username=" + login + "&api_sig=" + hexString + "&format=json"
                 val urlAdress = "https://ws.audioscrobbler.com/2.0/?$urlParameter"
 
                 val response = withContext(Dispatchers.IO) {
@@ -49,8 +57,11 @@ class UserViewModel : ViewModel() {
                         ).execute()
                 }
                 userLiveData.value = User(login, password)
-                isSuccessfullyEnter.value = response.body.toString().contains("ok")
-
+                val jsonString = response.body?.string()
+                Log.d("respon", jsonString.toString())
+                val json = gson.fromJson(jsonString, JsonElement::class.java)
+                Log.d("respon", response.code.toString())
+                isSuccessfullyEnter.value = response.code == 200
             } catch (e: Exception) {
                 isSuccessfullyEnter.value = false
             }

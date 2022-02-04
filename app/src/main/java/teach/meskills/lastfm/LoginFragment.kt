@@ -22,15 +22,27 @@ class LoginFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         binding = SignInFragmentBinding.inflate(inflater, container, false)
-        binding.login.setText(pref.login)
-        binding.password.setText(pref.password)
-        viewModel.userLiveData.observe(viewLifecycleOwner) { user ->
-            if (user != null) {
-                pref.login = user.userName
-                pref.password = user.password
+
+        val autoLogin = binding.login.setText(pref.login)
+        val autoPass = binding.password.setText(pref.password)
+        if (pref.login.isNotEmpty() && pref.password.isNotEmpty()) {
+            parentFragmentManager
+                .beginTransaction()
+                .replace(R.id.fragmentContainer, ResultFragment.newInstance())
+                .commit()
+        } else
+
+            viewModel.userLiveData.observe(viewLifecycleOwner) { user ->
+                if (user != null) {
+                    pref.login = user.userName
+                    pref.password = user.password
+                    parentFragmentManager
+                        .beginTransaction()
+                        .replace(R.id.fragmentContainer, ResultFragment.newInstance())
+                        .commit()
+                }
             }
-        }
-        viewModel.isSuccessfullyEnter.observe(viewLifecycleOwner) {value ->
+        viewModel.isSuccessfullyEnter.observe(viewLifecycleOwner) { value ->
             if (value) {
                 parentFragmentManager
                     .beginTransaction()
@@ -48,5 +60,11 @@ class LoginFragment : Fragment() {
         }
         return binding.root
     }
- //userName == "Realisttt19" && password == "Zz123123!"
+
+    companion object {
+        fun newInstance(): LoginFragment {
+            return LoginFragment()
+        }
+    }
 }
+//userName == "Realisttt19" && password == "Zz123123!"

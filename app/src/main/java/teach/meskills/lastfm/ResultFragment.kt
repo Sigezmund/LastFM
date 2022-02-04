@@ -9,6 +9,9 @@ import teach.meskills.lastfm.databinding.ResultFragmentBinding
 
 class ResultFragment : Fragment() {
     private lateinit var binding: ResultFragmentBinding
+    private val pref by lazy {
+        CustomPreference(requireContext())
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -17,6 +20,15 @@ class ResultFragment : Fragment() {
     ): View? {
         binding = ResultFragmentBinding.inflate(inflater, container, false)
         binding.result.text = SUCCESS
+
+        binding.logOut.setOnClickListener {
+            parentFragmentManager
+                .beginTransaction()
+                .replace(R.id.fragmentContainer, LoginFragment.newInstance())
+                .commit()
+            pref.login = ""
+            pref.password = ""
+        }
         return binding.root
     }
 

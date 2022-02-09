@@ -22,41 +22,36 @@ class LoginFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         binding = SignInFragmentBinding.inflate(inflater, container, false)
-
         val autoLogin = binding.login.setText(pref.login)
         val autoPass = binding.password.setText(pref.password)
         if (pref.login.isNotEmpty() && pref.password.isNotEmpty()) {
             parentFragmentManager
                 .beginTransaction()
-                .replace(R.id.fragmentContainer, ResultFragment.newInstance())
+                .replace(R.id.fragmentContainer, ChartFragment.newInstance())
                 .commit()
-        } else
-
-            viewModel.userLiveData.observe(viewLifecycleOwner) { user ->
-                if (user != null) {
-                    pref.login = user.userName
-                    pref.password = user.password
+        } else {
+            viewModel.isSuccessfullyEnter.observe(viewLifecycleOwner) { v ->
+                if (v!!) {
+                    viewModel.userLiveData.observe(viewLifecycleOwner) { user ->
+                        if (user != null) {
+                            pref.login = user.userName
+                            pref.password = user.password
+                        }
+                    }
                     parentFragmentManager
                         .beginTransaction()
-                        .replace(R.id.fragmentContainer, ResultFragment.newInstance())
+                        .replace(R.id.fragmentContainer, ChartFragment.newInstance())
                         .commit()
+                } else {
+                    Toast.makeText(requireContext(), "Wrong login or password", Toast.LENGTH_SHORT)
+                        .show()
                 }
             }
-        viewModel.isSuccessfullyEnter.observe(viewLifecycleOwner) { value ->
-            if (value) {
-                parentFragmentManager
-                    .beginTransaction()
-                    .replace(R.id.fragmentContainer, ResultFragment.newInstance())
-                    .commit()
-            } else {
-                Toast.makeText(requireContext(), "Wrong login or password", Toast.LENGTH_SHORT)
-                    .show()
+            binding.signIn.setOnClickListener {
+                val userName = binding.login.text.toString()
+                val password = binding.password.text.toString()
+                viewModel.onSignInClick(userName, password)
             }
-        }
-        binding.signIn.setOnClickListener {
-            val userName = binding.login.text.toString()
-            val password = binding.password.text.toString()
-            viewModel.onSignInClick(userName, password)
         }
         return binding.root
     }

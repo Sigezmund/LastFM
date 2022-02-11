@@ -1,4 +1,4 @@
-package teach.meskills.lastfm
+package teach.meskills.lastfm.chartTracks
 
 import com.google.gson.annotations.SerializedName
 

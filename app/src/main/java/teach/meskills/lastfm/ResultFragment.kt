@@ -6,6 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import teach.meskills.lastfm.databinding.ResultFragmentBinding
+import teach.meskills.lastfm.login.CustomPreference
+import teach.meskills.lastfm.login.LoginFragment
 
 class ResultFragment : Fragment() {
     private lateinit var binding: ResultFragmentBinding

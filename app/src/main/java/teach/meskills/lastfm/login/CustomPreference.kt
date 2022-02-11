@@ -1,4 +1,4 @@
-package teach.meskills.lastfm
+package teach.meskills.lastfm.login
 
 import android.content.Context
 

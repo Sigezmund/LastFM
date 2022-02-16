@@ -50,7 +50,7 @@ class ChartFragment : Fragment() {
             .setRequiresStorageNotLow(true)
             .build()
         val myWorkRequest =
-            PeriodicWorkRequestBuilder<DownloadWorker>(20, TimeUnit.HOURS, 15, TimeUnit.MINUTES)
+            PeriodicWorkRequestBuilder<DownloadWorker>(12, TimeUnit.HOURS, 11, TimeUnit.HOURS)
                 .addTag(TAG)
                 .setConstraints(constraints)
                 .build()

@@ -17,8 +17,9 @@ import teach.meskills.lastfm.getViewModel
 class LoginFragment : Fragment() {
     private lateinit var binding: SignInFragmentBinding
     private val pref by lazy {
-    CustomPreference(requireContext())
-}
+        CustomPreference(requireContext())
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -38,7 +39,7 @@ class LoginFragment : Fragment() {
                 .commit()
         } else {
             viewModel.userLiveData.observe(viewLifecycleOwner) { user ->
-                if (user != null ) {
+                if (user != null) {
                     loginManager.logIn(user)
                 }
             }
@@ -48,11 +49,9 @@ class LoginFragment : Fragment() {
                         .beginTransaction()
                         .replace(R.id.fragmentContainer, ChartFragment.newInstance())
                         .commit()
-                }
-                else {
+                } else {
                     Toast.makeText(requireContext(), "Wrong login or password", Toast.LENGTH_SHORT)
                         .show()
-                    viewModel.isSuccessfullyEnter.value = null
                 }
             }
             binding.signIn.setOnClickListener {

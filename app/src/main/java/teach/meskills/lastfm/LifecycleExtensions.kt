@@ -10,6 +10,5 @@ inline fun <reified VIEW_MODEL : ViewModel> Fragment.getViewModel(crossinline fa
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             return factoryBlock() as T
         }
-
-    }).get(VIEW_MODEL::class.java)
+    })[VIEW_MODEL::class.java]
 }

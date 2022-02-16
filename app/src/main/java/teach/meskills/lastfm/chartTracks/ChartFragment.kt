@@ -8,13 +8,20 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.work.Constraints
+import androidx.work.NetworkType
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
 import teach.meskills.lastfm.*
 import teach.meskills.lastfm.data.AppDatabase
 import teach.meskills.lastfm.data.ContentRepositoryOkhttp
+import teach.meskills.lastfm.data.DownloadWorker
+import teach.meskills.lastfm.data.DownloadWorker.Companion.TAG
 import teach.meskills.lastfm.databinding.RecyclerChartFragmentBinding
 import teach.meskills.lastfm.login.CustomPreference
 import teach.meskills.lastfm.login.LoginFragment
 import teach.meskills.lastfm.login.LoginManager
+import java.util.concurrent.TimeUnit
 
 class ChartFragment : Fragment() {
     private lateinit var binding: RecyclerChartFragmentBinding
@@ -35,6 +42,20 @@ class ChartFragment : Fragment() {
         val viewModel = getViewModel {
             ChartViewModel(ContentRepositoryOkhttp(AppDatabase.build(requireContext())))
         }
+        WorkManager.getInstance(requireContext()).cancelAllWorkByTag(TAG)
+        val constraints = Constraints.Builder()
+            .setRequiresCharging(true)
+            .setRequiresBatteryNotLow(true)
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .setRequiresStorageNotLow(true)
+            .build()
+        val myWorkRequest =
+            PeriodicWorkRequestBuilder<DownloadWorker>(20, TimeUnit.HOURS, 15, TimeUnit.MINUTES)
+                .addTag(TAG)
+                .setConstraints(constraints)
+                .build()
+        WorkManager.getInstance(requireContext()).enqueue(myWorkRequest)
+
         binding.swipeRefresh.setOnRefreshListener {
             viewModel.openChart()
         }
@@ -57,9 +78,7 @@ class ChartFragment : Fragment() {
     }
 
     companion object {
-        fun newInstance(): ChartFragment {
-            return ChartFragment()
-        }
+        fun newInstance() = ChartFragment()
     }
 }
 

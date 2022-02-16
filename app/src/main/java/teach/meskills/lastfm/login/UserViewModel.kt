@@ -21,14 +21,14 @@ class UserViewModel(private val contentRepository: ContentRepositoryOkhttp) : Vi
                     contentRepository.signIn(login, password)
                 }
                 isSuccessfullyEnter.value = response
-                Log.d("res", response.toString())
+                Log.d("respon", response.toString())
                 if (response) {
                     userLiveData.value = User(login, password)
                 }
                 else {
                     isSuccessfullyEnter.value = false
                 }
-
+                Log.d("relivedata", isSuccessfullyEnter.value.toString())
             } catch (e: Exception) {
                 e.stackTraceToString()
                 isSuccessfullyEnter.value = false
@@ -41,4 +41,3 @@ class UserViewModel(private val contentRepository: ContentRepositoryOkhttp) : Vi
         scope.cancel()
     }
 }
-//2.0/?method=chart.gettoptracks&api_key=YOUR_API_KEY&format=json

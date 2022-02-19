@@ -12,7 +12,8 @@ class UserViewModel(private val contentRepository: ContentRepositoryOkhttp) : Vi
 
     private val scope = CoroutineScope(Dispatchers.Main)
     val userLiveData = MutableLiveData<User>()
-    val isSuccessfullyEnter = MutableLiveData<Boolean?>()
+    val isSuccessfullyEnter = MutableLiveData<Boolean>()
+    val errorMessage = MutableLiveData<Boolean>()
 
     fun onSignInClick(login: String, password: String) {
         scope.launch {
@@ -26,6 +27,7 @@ class UserViewModel(private val contentRepository: ContentRepositoryOkhttp) : Vi
                     userLiveData.value = User(login, password)
                 }
                 else {
+                    errorMessage.value = true
                     isSuccessfullyEnter.value = false
                 }
                 Log.d("relivedata", isSuccessfullyEnter.value.toString())

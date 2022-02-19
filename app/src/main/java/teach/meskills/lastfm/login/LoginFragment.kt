@@ -30,9 +30,8 @@ class LoginFragment : Fragment() {
         val viewModel = getViewModel {
             UserViewModel(ContentRepositoryOkhttp(AppDatabase.build(requireContext())))
         }
-        loginManager.isLoggedInLiveData.value
         Log.d("prefer", pref.login)
-        if (loginManager.isLoggedIn) {
+        if (loginManager.isLoggedIn == true) {
             parentFragmentManager
                 .beginTransaction()
                 .replace(R.id.fragmentContainer, ChartFragment.newInstance())
@@ -43,15 +42,19 @@ class LoginFragment : Fragment() {
                     loginManager.logIn(user)
                 }
             }
+            viewModel.errorMessage.observe(viewLifecycleOwner){
+                if(it){
+                        Toast.makeText(requireContext(), "Wrong login or password", Toast.LENGTH_SHORT)
+                            .show()
+                        viewModel.errorMessage.value = false
+                    }
+            }
             viewModel.isSuccessfullyEnter.observe(viewLifecycleOwner) {
-                if (it!!) {
+                if (it) {
                     parentFragmentManager
                         .beginTransaction()
                         .replace(R.id.fragmentContainer, ChartFragment.newInstance())
                         .commit()
-                } else {
-                    Toast.makeText(requireContext(), "Wrong login or password", Toast.LENGTH_SHORT)
-                        .show()
                 }
             }
             binding.signIn.setOnClickListener {

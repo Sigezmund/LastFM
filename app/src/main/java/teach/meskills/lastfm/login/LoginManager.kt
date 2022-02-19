@@ -4,13 +4,13 @@ import androidx.lifecycle.MutableLiveData
 import teach.meskills.lastfm.data.User
 
 class LoginManager(private val prefs: CustomPreference) {
-    val isLoggedInLiveData = MutableLiveData<Boolean>()
+    val isLoggedInLiveData = MutableLiveData<Boolean?>()
 
     init {
         isLoggedInLiveData.value = prefs.login != "" && prefs.password != ""
     }
 
-    val isLoggedIn: Boolean
+    var isLoggedIn: Boolean? = null
         get() = isLoggedInLiveData.value ?: false
 
     fun logIn(user: User) {

@@ -71,14 +71,11 @@ class ChartFragment : Fragment() {
         binding.recycler.adapter = adapter
         binding.recycler.layoutManager = layoutManager
         val appWidgetManager = AppWidgetManager.getInstance(requireContext())
+        val ids = AppWidgetManager.getInstance(context)
+            .getAppWidgetIds(ComponentName(requireContext(), WidgetProvider::class.java))
+
         viewModel.trackLiveData.observe(viewLifecycleOwner) {
-            val ids = AppWidgetManager.getInstance(context)
-                .getAppWidgetIds(ComponentName(requireContext(), WidgetProvider::class.java))
-            val remoteViews = RemoteViews(requireContext().packageName, R.layout.widget)
-            remoteViews.setRemoteAdapter(R.id.widgetList, WidgetService.getIntent(requireContext(), it))
-            ids.forEach { it ->
-                appWidgetManager.updateAppWidget(it,remoteViews)
-            }
+            appWidgetManager.notifyAppWidgetViewDataChanged(ids, R.id.widgetList)
             binding.swipeRefresh.isRefreshing = false
             adapter.audio = it
         }

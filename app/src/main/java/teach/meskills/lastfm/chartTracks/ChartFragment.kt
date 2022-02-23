@@ -1,9 +1,14 @@
 package teach.meskills.lastfm.chartTracks
 
+import android.appwidget.AppWidgetManager
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent.getIntent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.RemoteViews
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -21,6 +26,8 @@ import teach.meskills.lastfm.databinding.RecyclerChartFragmentBinding
 import teach.meskills.lastfm.login.CustomPreference
 import teach.meskills.lastfm.login.LoginFragment
 import teach.meskills.lastfm.login.LoginManager
+import teach.meskills.lastfm.widget.WidgetProvider
+import teach.meskills.lastfm.widget.WidgetService
 import java.util.concurrent.TimeUnit
 
 class ChartFragment : Fragment() {
@@ -63,7 +70,15 @@ class ChartFragment : Fragment() {
         val layoutManager = LinearLayoutManager(requireContext())
         binding.recycler.adapter = adapter
         binding.recycler.layoutManager = layoutManager
+        val appWidgetManager = AppWidgetManager.getInstance(requireContext())
         viewModel.trackLiveData.observe(viewLifecycleOwner) {
+            val ids = AppWidgetManager.getInstance(context)
+                .getAppWidgetIds(ComponentName(requireContext(), WidgetProvider::class.java))
+            val remoteViews = RemoteViews(requireContext().packageName, R.layout.widget)
+            remoteViews.setRemoteAdapter(R.id.widgetList, WidgetService.getIntent(requireContext(), it))
+            ids.forEach { it ->
+                appWidgetManager.updateAppWidget(it,remoteViews)
+            }
             binding.swipeRefresh.isRefreshing = false
             adapter.audio = it
         }

@@ -2,11 +2,12 @@ package teach.meskills.lastfm.chartTracks
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import teach.meskills.lastfm.data.AudioEntity
 import teach.meskills.lastfm.R
 
-class RecyclerAdapter : RecyclerView.Adapter<AudioViewHolder>() {
+class RecyclerAdapter : RecyclerView.Adapter<AudioViewHolder>(){
 
     var audio: List<AudioEntity> = emptyList()
         set(value) {

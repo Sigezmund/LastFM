@@ -4,11 +4,10 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.*
-import teach.meskills.lastfm.data.ContentRepositoryOkhttp
+import teach.meskills.lastfm.data.ContentRepository
 import teach.meskills.lastfm.data.User
-import java.lang.Exception
 
-class UserViewModel(private val contentRepository: ContentRepositoryOkhttp) : ViewModel() {
+class UserViewModel(private val contentRepository: ContentRepository) : ViewModel() {
 
     private val scope = CoroutineScope(Dispatchers.Main)
     val userLiveData = MutableLiveData<User>()
@@ -25,8 +24,7 @@ class UserViewModel(private val contentRepository: ContentRepositoryOkhttp) : Vi
                 Log.d("respon", response.toString())
                 if (response) {
                     userLiveData.value = User(login, password)
-                }
-                else {
+                } else {
                     errorMessage.value = true
                     isSuccessfullyEnter.value = false
                 }

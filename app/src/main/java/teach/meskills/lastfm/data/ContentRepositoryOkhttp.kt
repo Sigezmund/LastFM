@@ -7,10 +7,10 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
 import teach.meskills.lastfm.chartTracks.AudioResponseDTO
-import java.lang.Exception
 import java.security.MessageDigest
+import javax.inject.Inject
 
-class ContentRepositoryOkhttp(
+class ContentRepositoryOkhttp @Inject constructor(
     private val appDatabase: AppDatabase
 ) : ContentRepository {
     private val gson = Gson()

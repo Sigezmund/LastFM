@@ -25,6 +25,7 @@
         <entry key="..\:/Java/KotlinKunetsAnton/LastFM/widget/src/main/res/drawable/ic_radio.xml" value="0.1885" />
         <entry key="..\:/Java/KotlinKunetsAnton/LastFM/widget/src/main/res/layout/activity_main.xml" value="0.20561456752655538" />
         <entry key="..\:/Java/KotlinKunetsAnton/LastFM/widget/src/main/res/layout/widget_last_fm.xml" value="0.20561456752655538" />
+        <entry key="app/src/main/res/layout/track_details_fragment.xml" value="0.2703125" />
       </map>
     </option>
   </component>

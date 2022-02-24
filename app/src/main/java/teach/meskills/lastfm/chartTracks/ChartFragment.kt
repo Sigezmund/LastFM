@@ -2,13 +2,10 @@ package teach.meskills.lastfm.chartTracks
 
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
-import android.content.Context
-import android.content.Intent.getIntent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.RemoteViews
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -17,9 +14,9 @@ import androidx.work.Constraints
 import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
-import teach.meskills.lastfm.*
-import teach.meskills.lastfm.data.AppDatabase
-import teach.meskills.lastfm.data.ContentRepositoryOkhttp
+import org.koin.android.ext.android.inject
+import teach.meskills.lastfm.R
+import teach.meskills.lastfm.chartTracks.details.TrackDetailsFragment
 import teach.meskills.lastfm.data.DownloadWorker
 import teach.meskills.lastfm.data.DownloadWorker.Companion.TAG
 import teach.meskills.lastfm.databinding.RecyclerChartFragmentBinding
@@ -27,7 +24,6 @@ import teach.meskills.lastfm.login.CustomPreference
 import teach.meskills.lastfm.login.LoginFragment
 import teach.meskills.lastfm.login.LoginManager
 import teach.meskills.lastfm.widget.WidgetProvider
-import teach.meskills.lastfm.widget.WidgetService
 import java.util.concurrent.TimeUnit
 
 class ChartFragment : Fragment() {
@@ -35,6 +31,7 @@ class ChartFragment : Fragment() {
     private val pref by lazy {
         CustomPreference(requireContext())
     }
+    private val viewModel by inject<ChartViewModel>()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -46,9 +43,6 @@ class ChartFragment : Fragment() {
         val dividerItemDecoration = DividerItemDecoration(context, RecyclerView.VERTICAL)
         dividerItemDecoration.setDrawable(resources.getDrawable(R.drawable.devider))
         binding.recycler.addItemDecoration(dividerItemDecoration)
-        val viewModel = getViewModel {
-            ChartViewModel(ContentRepositoryOkhttp(AppDatabase.build(requireContext())))
-        }
         WorkManager.getInstance(requireContext()).cancelAllWorkByTag(TAG)
         val constraints = Constraints.Builder()
             .setRequiresCharging(true)
@@ -66,7 +60,12 @@ class ChartFragment : Fragment() {
         binding.swipeRefresh.setOnRefreshListener {
             viewModel.openChart()
         }
-        val adapter = RecyclerAdapter()
+        val adapter = RecyclerAdapter {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragmentContainer, TrackDetailsFragment.newInstance(it))
+                .addToBackStack(null)
+                .commit()
+        }
         val layoutManager = LinearLayoutManager(requireContext())
         binding.recycler.adapter = adapter
         binding.recycler.layoutManager = layoutManager

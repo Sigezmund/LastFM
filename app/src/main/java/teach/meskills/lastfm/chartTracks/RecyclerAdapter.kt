@@ -2,12 +2,14 @@ package teach.meskills.lastfm.chartTracks
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import teach.meskills.lastfm.data.AudioEntity
+import org.koin.core.component.KoinComponent
 import teach.meskills.lastfm.R
+import teach.meskills.lastfm.data.AudioEntity
 
-class RecyclerAdapter : RecyclerView.Adapter<AudioViewHolder>(){
+class RecyclerAdapter(
+    private val clickListener: (AudioEntity) -> Unit
+) : RecyclerView.Adapter<AudioViewHolder>(), KoinComponent {
 
     var audio: List<AudioEntity> = emptyList()
         set(value) {
@@ -17,6 +19,7 @@ class RecyclerAdapter : RecyclerView.Adapter<AudioViewHolder>(){
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AudioViewHolder {
         return AudioViewHolder(
+            clickListener,
             LayoutInflater.from(parent.context)
                 .inflate(R.layout.audio_item, parent, false)
         )

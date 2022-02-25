@@ -65,4 +65,7 @@ dependencies {
     testImplementation("androidx.room:room-testing:2.4.1")
     implementation("androidx.room:room-paging:2.4.1")
     implementation "androidx.work:work-runtime-ktx:2.7.1"
+
+    implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
+    implementation 'io.reactivex.rxjava3:rxjava:3.0.0'
 }

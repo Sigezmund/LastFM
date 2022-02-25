@@ -11,6 +11,7 @@ import teach.meskills.lastfm.R
 import teach.meskills.lastfm.chartTracks.ChartFragment
 import teach.meskills.lastfm.data.AppDatabase
 import teach.meskills.lastfm.data.ContentRepositoryOkhttp
+import teach.meskills.lastfm.data.ContentRepositoryRxImpl
 import teach.meskills.lastfm.databinding.SignInFragmentBinding
 import teach.meskills.lastfm.getViewModel
 
@@ -28,7 +29,7 @@ class LoginFragment : Fragment() {
         binding = SignInFragmentBinding.inflate(inflater, container, false)
         val loginManager = LoginManager(pref)
         val viewModel = getViewModel {
-            UserViewModel(ContentRepositoryOkhttp(AppDatabase.build(requireContext())))
+            UserViewModel(ContentRepositoryRxImpl())
         }
         Log.d("prefer", pref.login)
         if (loginManager.isLoggedIn == true) {

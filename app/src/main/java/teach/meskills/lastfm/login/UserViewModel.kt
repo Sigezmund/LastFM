@@ -1,45 +1,49 @@
 package teach.meskills.lastfm.login
 
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import kotlinx.coroutines.*
-import teach.meskills.lastfm.data.ContentRepositoryOkhttp
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.plugins.RxJavaPlugins
+import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.*
+import teach.meskills.lastfm.data.ContentRepositoryRx
 import teach.meskills.lastfm.data.User
-import java.lang.Exception
 
-class UserViewModel(private val contentRepository: ContentRepositoryOkhttp) : ViewModel() {
+class UserViewModel(private val contentRepository: ContentRepositoryRx) : ViewModel() {
 
-    private val scope = CoroutineScope(Dispatchers.Main)
     val userLiveData = MutableLiveData<User>()
     val isSuccessfullyEnter = MutableLiveData<Boolean>()
     val errorMessage = MutableLiveData<Boolean>()
+    private var disposable: Disposable? = null
+    init {
+        RxJavaPlugins.setErrorHandler {
+
+        }
+    }
 
     fun onSignInClick(login: String, password: String) {
-        scope.launch {
-            try {
-                val response = withContext(Dispatchers.IO) {
-                    contentRepository.signIn(login, password)
-                }
-                isSuccessfullyEnter.value = response
-                Log.d("respon", response.toString())
-                if (response) {
+        disposable?.dispose()
+
+        disposable = contentRepository.signIn(login, password)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({ isSuccess ->
+                isSuccessfullyEnter.value = isSuccess
+                errorMessage.value = !isSuccess
+                if (isSuccess) {
                     userLiveData.value = User(login, password)
                 }
-                else {
-                    errorMessage.value = true
-                    isSuccessfullyEnter.value = false
-                }
-                Log.d("relivedata", isSuccessfullyEnter.value.toString())
-            } catch (e: Exception) {
-                e.stackTraceToString()
+            }, { error ->
                 isSuccessfullyEnter.value = false
-            }
-        }
+                errorMessage.value = true
+            })
     }
 
     override fun onCleared() {
         super.onCleared()
-        scope.cancel()
+        disposable?.dispose()
     }
 }

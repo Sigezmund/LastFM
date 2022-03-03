@@ -2,13 +2,10 @@ package teach.meskills.lastfm.chartTracks
 
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
-import android.content.Context
-import android.content.Intent.getIntent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.RemoteViews
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -19,7 +16,7 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import teach.meskills.lastfm.*
 import teach.meskills.lastfm.data.AppDatabase
-import teach.meskills.lastfm.data.ContentRepositoryOkhttp
+import teach.meskills.lastfm.data.ContentRepositoryRxImpl
 import teach.meskills.lastfm.data.DownloadWorker
 import teach.meskills.lastfm.data.DownloadWorker.Companion.TAG
 import teach.meskills.lastfm.databinding.RecyclerChartFragmentBinding
@@ -27,7 +24,6 @@ import teach.meskills.lastfm.login.CustomPreference
 import teach.meskills.lastfm.login.LoginFragment
 import teach.meskills.lastfm.login.LoginManager
 import teach.meskills.lastfm.widget.WidgetProvider
-import teach.meskills.lastfm.widget.WidgetService
 import java.util.concurrent.TimeUnit
 
 class ChartFragment : Fragment() {
@@ -47,7 +43,7 @@ class ChartFragment : Fragment() {
         dividerItemDecoration.setDrawable(resources.getDrawable(R.drawable.devider))
         binding.recycler.addItemDecoration(dividerItemDecoration)
         val viewModel = getViewModel {
-            ChartViewModel(ContentRepositoryOkhttp(AppDatabase.build(requireContext())))
+            ChartViewModel(ContentRepositoryRxImpl(AppDatabase.build(requireContext())))
         }
         WorkManager.getInstance(requireContext()).cancelAllWorkByTag(TAG)
         val constraints = Constraints.Builder()
@@ -64,7 +60,7 @@ class ChartFragment : Fragment() {
         WorkManager.getInstance(requireContext()).enqueue(myWorkRequest)
 
         binding.swipeRefresh.setOnRefreshListener {
-            viewModel.openChart()
+            viewModel.refreshData()
         }
         val adapter = RecyclerAdapter()
         val layoutManager = LinearLayoutManager(requireContext())
@@ -76,8 +72,11 @@ class ChartFragment : Fragment() {
 
         viewModel.trackLiveData.observe(viewLifecycleOwner) {
             appWidgetManager.notifyAppWidgetViewDataChanged(ids, R.id.widgetList)
-            binding.swipeRefresh.isRefreshing = false
             adapter.audio = it
+        }
+
+        viewModel.isRefreshing.observe(viewLifecycleOwner) {
+            binding.swipeRefresh.isRefreshing = it
         }
         binding.logOut1.setOnClickListener {
             parentFragmentManager

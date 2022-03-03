@@ -1,48 +1,43 @@
 package teach.meskills.lastfm.chartTracks
 
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import kotlinx.coroutines.*
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.schedulers.Schedulers
 import teach.meskills.lastfm.data.AudioEntity
-import teach.meskills.lastfm.data.ContentRepository
-import java.lang.Exception
+import teach.meskills.lastfm.data.ContentRepositoryRx
+import teach.meskills.lastfm.data.RequestState
 
 class ChartViewModel(
-    private val contentRepository: ContentRepository
+    private val contentRepository: ContentRepositoryRx
 ) : ViewModel() {
 
     val trackLiveData = MutableLiveData<List<AudioEntity>>()
-    private val isRefreshing = MutableLiveData<Boolean>()
+    val isRefreshing = MutableLiveData<Boolean>()
     private val errorMessage = MutableLiveData<Boolean>()
-    private val scope = CoroutineScope(Dispatchers.Main)
+    private var disposable: Disposable? = null
 
     init {
-        openChart()
+        refreshData()
     }
 
-    fun openChart() {
-        scope.launch {
-            isRefreshing.value = true
-            errorMessage.value = false
-            try {
-                val chart = withContext(Dispatchers.IO) {
-                    contentRepository.getMedia()
-                }
-                Log.d("res", chart.toString())
-                trackLiveData.value = chart
-            } catch (e: Exception) {
-                if (trackLiveData.value.isNullOrEmpty()) {
-                    errorMessage.value = true
-                    Log.d("res", e.toString())
-                }
-            }
-            isRefreshing.value = false
-        }
+    fun refreshData() {
+        disposable?.dispose()
+        disposable = contentRepository.getMedia()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                trackLiveData.value = it.trackList
+                isRefreshing.value = it.requestState == RequestState.Loading
+                errorMessage.value = it.requestState is RequestState.Error
+            }, {
+
+            })
     }
 
     override fun onCleared() {
         super.onCleared()
-        scope.cancel()
+        disposable?.dispose()
     }
 }

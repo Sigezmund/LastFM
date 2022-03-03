@@ -10,7 +10,6 @@ import androidx.fragment.app.Fragment
 import teach.meskills.lastfm.R
 import teach.meskills.lastfm.chartTracks.ChartFragment
 import teach.meskills.lastfm.data.AppDatabase
-import teach.meskills.lastfm.data.ContentRepositoryOkhttp
 import teach.meskills.lastfm.data.ContentRepositoryRxImpl
 import teach.meskills.lastfm.databinding.SignInFragmentBinding
 import teach.meskills.lastfm.getViewModel
@@ -29,7 +28,7 @@ class LoginFragment : Fragment() {
         binding = SignInFragmentBinding.inflate(inflater, container, false)
         val loginManager = LoginManager(pref)
         val viewModel = getViewModel {
-            UserViewModel(ContentRepositoryRxImpl())
+            UserViewModel(ContentRepositoryRxImpl(AppDatabase.build(requireContext())))
         }
         Log.d("prefer", pref.login)
         if (loginManager.isLoggedIn == true) {
@@ -43,12 +42,12 @@ class LoginFragment : Fragment() {
                     loginManager.logIn(user)
                 }
             }
-            viewModel.errorMessage.observe(viewLifecycleOwner){
-                if(it){
-                        Toast.makeText(requireContext(), "Wrong login or password", Toast.LENGTH_SHORT)
-                            .show()
-                        viewModel.errorMessage.value = false
-                    }
+            viewModel.errorMessage.observe(viewLifecycleOwner) {
+                if (it) {
+                    Toast.makeText(requireContext(), "Wrong login or password", Toast.LENGTH_SHORT)
+                        .show()
+                    viewModel.errorMessage.value = false
+                }
             }
             viewModel.isSuccessfullyEnter.observe(viewLifecycleOwner) {
                 if (it) {
